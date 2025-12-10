@@ -276,7 +276,7 @@ if len(st.session_state.variables) >= 2:
     with col3:
         metric_box("CR (Consistency Ratio)", f"{CR:.2f} %")
     
-    if CR >= 0.1:
+    if CR >= 10:
         st.warning(f"⚠️ Consistency Ratio is not consistent (CR = {CR:.2f} % >= 10 %). Please revise your pairwise comparisons.")
     else:
         st.success(f"✅ Consistency Ratio is acceptable (CR = {CR:.2f} % < 10 %).")
