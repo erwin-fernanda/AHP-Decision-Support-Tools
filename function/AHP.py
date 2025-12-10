@@ -89,7 +89,7 @@ class GetEigenValues:
         eigen_value = 0
 
         for val in self.variable:
-            df_eigen[val] = float(np.sum(df_score_calc[val] * df_score_calc['Total']))
+            df_eigen[val] = float(np.sum(df_score_calc[val] * df_score_calc['Total'])) / float(df_score_calc['Total'].loc[val])
             eigen_value += float(np.sum(df_score_calc[val] * df_score_calc['Total']))
 
         df_eigen["Eigenvalue Maximum"] = eigen_value

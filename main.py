@@ -82,6 +82,44 @@ if not st.session_state["logged_in"]:
                 st.error("❌ Username not found")
 
     st.stop()  # Stop entire app until logged in
+
+
+# --- Create a modal dialog ---
+@st.dialog("AHP Reference Guide")
+def ahp_reference_popup():
+    st.markdown("""
+    ### 🔢 Weighted Scores (Saaty Scale, 1980)
+    - 1 → Equally important
+    - 2 → Equally to moderately important
+    - 3 → Moderately important
+    - 4 → Moderately to strongly important
+    - 5 → Strongly important
+    - 6 → Strongly to very strongly important
+    - 7 → Very strongly important
+    - 8 → Very strongly to extremely important
+    - 9 → Extremely important
+
+    ### 🧮 Consistency Ratio (CR)
+    - -0.1 < CR < **0.1** → Acceptable  
+    - CR >= **0.1** or CR <= **-0.1** → ⚠️ **Not consistent**  
+    """)
+    
+    st.subheader("📊 Random Index (RI) Table")
+
+    ri_data = {
+        "Matrix Size (n)": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        "RI Value":        [0.00, 0.00, 0.58, 0.90, 1.12, 1.24, 1.32, 1.41, 1.45, 1.49, 1.51, 1.48, 1.56, 1.57, 1.59]
+    }
+
+    st.table(pd.DataFrame(ri_data))
+    
+    st.markdown("""
+    ### 📚 References
+    - Saaty, T. L. (1980). *The Analytic Hierarchy Process*.  
+    - Saaty, T. L. (2008). "Decision making with AHP." *Int. Journal of Services Sciences*.
+
+    """)
+    
     
 ### Frontend for SideBar ###
 
@@ -102,6 +140,10 @@ with st.sidebar:
     
     Built for ease of use with dynamic sliders and automated calculations.
     """)
+    
+    # --- Button to open popup ---
+    if st.button("AHP Reference Guide"):
+        ahp_reference_popup()
 
     st.markdown("---")
 
@@ -130,10 +172,11 @@ with st.sidebar:
 
 ### Frontend for AHP Tools ### 
 st.title("📘 AHP Decision Support Tool")
-
+    
 # --- Step 1: enter variables ---
 st.header("1. Define Variables")
 variable_input = st.text_input("Enter variable name")
+
 if "variables" not in st.session_state:
     st.session_state.variables = []
 
@@ -141,8 +184,24 @@ if st.button("Add variable"):
     if variable_input and variable_input not in st.session_state.variables:
         st.session_state.variables.append(variable_input)
 
-st.write("Current variables:", st.session_state.variables)
+st.subheader("Current Variables")
+
+# Create 2-column grid
+cols = st.columns(2)
+
+for i, v in enumerate(st.session_state.variables):
+    with cols[i % 2]:
+        with st.container(border=True):
+            c1, c2 = st.columns([4, 1])  # left: label, right: delete button
+            c1.write(f"**{v}**")
+            if c2.button("❌", key=f"del_{v}"):
+                st.session_state.variables.remove(v)
+                st.rerun()
+
 st.markdown("---")
+
+# st.write("Current variables:", st.session_state.variables)
+# st.markdown("---")
 
 # --- Step 2: Pairwise comparison ---
 if len(st.session_state.variables) >= 2:
@@ -194,11 +253,11 @@ if len(st.session_state.variables) >= 2:
     st.write(df_w)
 
     ### Method 1 - Approach with Eigen Calculation from Linear Regression
-    λ_max = np.real(eigvals[max_eig_index])
-    CI = (λ_max - n) / (n - 1)
-    RI_dict = AHP.GetEigenValues(st.session_state.variables, st.session_state.init_score).load_RI()
-    RI = RI_dict[n]
-    CR = CI / RI if RI != 0 else 0
+    # λ_max = np.real(eigvals[max_eig_index])
+    # RI_dict = AHP.GetEigenValues(st.session_state.variables, st.session_state.init_score).load_RI()
+    # RI = RI_dict[n]
+    # CI = (λ_max - n) / (n - 1)
+    # CR = CI / RI if RI != 0 else 0
     
     ### Method 2 - Aprroach from Manual Calculation 
     Eigen_Final = AHP.GetEigenValues(st.session_state.variables, st.session_state.init_score).run_calculation()
@@ -217,10 +276,12 @@ if len(st.session_state.variables) >= 2:
     with col3:
         metric_box("CR (Consistency Ratio)", f"{CR:.4f}")
     
-    if CR > 0.1:
-        st.warning(f"⚠️ Consistency Ratio is too high (CR = {CR:.4f} > 0.1). Please revise your pairwise comparisons.")
+    if CR >= 0.1:
+        st.warning(f"⚠️ Consistency Ratio is too high (CR = {CR:.4f} >= 0.1). Please revise your pairwise comparisons.")
+    elif -0.1 < CR < 0.1:
+        st.success(f"✅ Consistency Ratio is acceptable, because the CR value is within the range -0.1 until 0.1 (CR = {CR:.4f}).")
     else:
-        st.success(f"✅ Consistency Ratio is acceptable (CR = {CR:.4f} < 0.1).")
+        st.success(f"✅ Consistency Ratio is too low (CR = {CR:.4f} <= -0.1). Please revise your pairwise comparisons.")
     
     st.markdown("---")
     
