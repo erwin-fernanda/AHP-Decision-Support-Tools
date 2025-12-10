@@ -100,8 +100,8 @@ def ahp_reference_popup():
     - 9 → Extremely important
 
     ### 🧮 Consistency Ratio (CR)
-    - -0.1 < CR < **0.1** → Acceptable  
-    - CR >= **0.1** or CR <= **-0.1** → ⚠️ **Not consistent**  
+    - CR < **10 %** → ✅ **Acceptable**
+    - CR >= **10 %** → ⚠️ **Not consistent**  
     """)
     
     st.subheader("📊 Random Index (RI) Table")
@@ -263,7 +263,7 @@ if len(st.session_state.variables) >= 2:
     Eigen_Final = AHP.GetEigenValues(st.session_state.variables, st.session_state.init_score).run_calculation()
     λ_max = Eigen_Final['Eigenvalue Maximum']
     CI = Eigen_Final['CI (Consistency Index)']
-    CR = Eigen_Final['CR (Consistency Ratio)']
+    CR = np.abs(Eigen_Final['CR (Consistency Ratio)']) * 100
     
     col1, col2, col3 = st.columns(3)
     
@@ -274,17 +274,15 @@ if len(st.session_state.variables) >= 2:
         metric_box("CI (Consistency Index)", f"{CI:.4f}")
 
     with col3:
-        metric_box("CR (Consistency Ratio)", f"{CR:.4f}")
+        metric_box("CR (Consistency Ratio)", f"{CR:.2f} %")
     
     if CR >= 0.1:
-        st.warning(f"⚠️ Consistency Ratio is too high (CR = {CR:.4f} >= 0.1). Please revise your pairwise comparisons.")
-    elif -0.1 < CR < 0.1:
-        st.success(f"✅ Consistency Ratio is acceptable, because the CR value is within the range -0.1 until 0.1 (CR = {CR:.4f}).")
+        st.warning(f"⚠️ Consistency Ratio is not consistent (CR = {CR:.2f} % >= 10 %). Please revise your pairwise comparisons.")
     else:
-        st.success(f"✅ Consistency Ratio is too low (CR = {CR:.4f} <= -0.1). Please revise your pairwise comparisons.")
+        st.success(f"✅ Consistency Ratio is acceptable (CR = {CR:.2f} % < 10 %).")
     
     st.markdown("---")
     
 else:
-    st.info("Add at least 2 variables to continue.")
+    st.warning("Add at least 2 variables to continue.")
     
