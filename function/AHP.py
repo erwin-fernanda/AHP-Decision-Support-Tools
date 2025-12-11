@@ -89,8 +89,8 @@ class GetEigenValues:
         eigen_value = 0
 
         for val in self.variable:
-            df_eigen[val] = float(np.sum(df_score_calc[val] * df_score_calc['Total'])) / float(df_score_calc['Total'].loc[val])
-            eigen_value += df_eigen[val]
+            df_eigen[val] = self.df_score_norm.loc[val]['Total'] * 100
+            eigen_value += float(np.sum(df_score_calc[val] * df_score_calc['Total'])) / float(df_score_calc['Total'].loc[val])
 
         df_eigen["Eigenvalue Maximum"] = eigen_value / len(self.variable)
         df_eigen["CI (Consistency Index)"] = (df_eigen["Eigenvalue Maximum"] - len(self.variable)) / (len(self.variable) - 1)

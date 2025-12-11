@@ -261,13 +261,13 @@ if len(st.session_state.variables) >= 2:
     weights = []
     
     for val in st.session_state.variables:
-        weights.append(Eigen_Final[val])
+        weights.append(f"{Eigen_Final[val]:.2f}")
     
     λ_max = Eigen_Final['Eigenvalue Maximum']
     CI = Eigen_Final['CI (Consistency Index)']
     CR = np.abs(Eigen_Final['CR (Consistency Ratio)']) * 100
     
-    df_w = pd.DataFrame({"Variable": st.session_state.variables, "Weight": weights})
+    df_w = pd.DataFrame({"Variable": st.session_state.variables, "Weight (%)": weights})
     st.write(df_w)
     
     col1, col2, col3 = st.columns(3)
