@@ -244,13 +244,10 @@ if len(st.session_state.variables) >= 2:
     st.header("3. AHP Results")
     
     # Eigenvector method
-    eigvals, eigvecs = np.linalg.eig(st.session_state.matrix)
-    max_eig_index = np.argmax(eigvals)
-    weights = np.real(eigvecs[:, max_eig_index])
-    weights = weights / weights.sum()
-    
-    df_w = pd.DataFrame({"Variable": st.session_state.variables, "Weight": weights})
-    st.write(df_w)
+    # eigvals, eigvecs = np.linalg.eig(st.session_state.matrix)
+    # max_eig_index = np.argmax(eigvals)
+    # weights = np.real(eigvecs[:, max_eig_index])
+    # weights = weights / weights.sum()
 
     ### Method 1 - Approach with Eigen Calculation from Linear Regression
     # λ_max = np.real(eigvals[max_eig_index])
@@ -261,9 +258,17 @@ if len(st.session_state.variables) >= 2:
     
     ### Method 2 - Aprroach from Manual Calculation 
     Eigen_Final = AHP.GetEigenValues(st.session_state.variables, st.session_state.init_score).run_calculation()
+    weights = []
+    
+    for val in st.session_state.variables:
+        weights.append(Eigen_Final[val])
+    
     λ_max = Eigen_Final['Eigenvalue Maximum']
     CI = Eigen_Final['CI (Consistency Index)']
     CR = np.abs(Eigen_Final['CR (Consistency Ratio)']) * 100
+    
+    df_w = pd.DataFrame({"Variable": st.session_state.variables, "Weight": weights})
+    st.write(df_w)
     
     col1, col2, col3 = st.columns(3)
     
