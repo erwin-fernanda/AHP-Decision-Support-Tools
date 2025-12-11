@@ -204,7 +204,7 @@ st.markdown("---")
 # st.markdown("---")
 
 # --- Step 2: Pairwise comparison ---
-if len(st.session_state.variables) >= 2:
+if len(st.session_state.variables) >= 3:
     st.header("2. Pairwise Comparison")
     variables = st.session_state.variables
     n = len(variables)
