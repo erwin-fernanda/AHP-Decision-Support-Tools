@@ -260,34 +260,38 @@ if len(st.session_state.variables) >= 2:
     Eigen_Final = AHP.GetEigenValues(st.session_state.variables, st.session_state.init_score).run_calculation()
     weights = []
     
-    for val in st.session_state.variables:
-        weights.append(f"{Eigen_Final[val]:.2f}")
-    
-    λ_max = Eigen_Final['Eigenvalue Maximum']
-    CI = Eigen_Final['CI (Consistency Index)']
-    CR = np.abs(Eigen_Final['CR (Consistency Ratio)']) * 100
-    
-    df_w = pd.DataFrame({"Variable": st.session_state.variables, "Weight (%)": weights})
-    st.write(df_w)
-    
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        metric_box("Eigen Values", f"{λ_max:.4f}")
+    try:
+        for val in st.session_state.variables:
+            weights.append(f"{Eigen_Final[val]:.2f}")
+            
+        λ_max = Eigen_Final['Eigenvalue Maximum']
+        CI = Eigen_Final['CI (Consistency Index)']
+        CR = np.abs(Eigen_Final['CR (Consistency Ratio)']) * 100
         
-    with col2:
-        metric_box("CI (Consistency Index)", f"{CI:.4f}")
+        df_w = pd.DataFrame({"Variable": st.session_state.variables, "Weight (%)": weights})
+        st.write(df_w)
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            metric_box("Eigen Values", f"{λ_max:.4f}")
+            
+        with col2:
+            metric_box("CI (Consistency Index)", f"{CI:.4f}")
 
-    with col3:
-        metric_box("CR (Consistency Ratio)", f"{CR:.2f} %")
-    
-    if CR >= 10:
-        st.warning(f"⚠️ Consistency Ratio is not consistent (CR = {CR:.2f} % >= 10 %). Please revise your pairwise comparisons.")
-    else:
-        st.success(f"✅ Consistency Ratio is acceptable (CR = {CR:.2f} % < 10 %).")
+        with col3:
+            metric_box("CR (Consistency Ratio)", f"{CR:.2f} %")
+        
+        if CR >= 10:
+            st.warning(f"⚠️ Consistency Ratio is not consistent (CR = {CR:.2f} % >= 10 %). Please revise your pairwise comparisons.")
+        else:
+            st.success(f"✅ Consistency Ratio is acceptable (CR = {CR:.2f} % < 10 %).")
+        
+    except:
+        pass
     
     st.markdown("---")
     
 else:
-    st.warning("Add at least 2 variables to continue.")
+    st.warning("Add at least 3 variables to continue.")
     
