@@ -28,7 +28,7 @@ def metric_box(label, value, delta=None, color="#f8f9fa"):
         margin-bottom:15px;
     ">
         <div style="font-size:15px; color:#555; font-weight:600;">{label}</div>
-        <div style="font-size:32px; font-weight:700; margin-top:5px;">{value}</div>
+        <div style="font-size:32px; color:#555; font-weight:700; margin-top:5px;">{value}</div>
         {delta_html}
     </div>
     """, unsafe_allow_html=True)
